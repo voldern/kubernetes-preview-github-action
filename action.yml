@@ -1,0 +1,8 @@
+name: kubernetes-preview-github-action
+description: Create Kubernetes preview apps in PRs
+runs:
+  using: node12
+  main: dist/index.js
+branding:
+  icon: aperture
+  color: white

@@ -1,0 +1,23 @@
+{
+  "name": "kubernetes-preview-github-action",
+  "version": "0.0.1",
+  "description": "",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc",
+    "pack": "ncc build",
+    "format": "prettier --write **/*.ts"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/github": "^2.1.1",
+    "kubernetes-client": "^9.0.0"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.1",
+    "prettier": "^2.0.5",
+    "typescript": "^3.8.3"
+  }
+}
