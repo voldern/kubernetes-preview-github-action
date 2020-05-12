@@ -1,19 +1,25 @@
 {
   "name": "kubernetes-preview-github-action",
   "version": "0.0.1",
-  "description": "",
+  "description": "Github action for creating PR review apps on Kubernetes",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
     "pack": "ncc build",
-    "format": "prettier --write **/*.ts"
+    "format": "prettier --write **/*.ts",
+    "format:check": "prettier -c **/*.ts"
   },
-  "author": "",
+  "author": "Espen Volden <espen@volden.me>",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.4",
-    "@actions/github": "^2.1.1",
-    "kubernetes-client": "^9.0.0"
+    "@actions/github": "^2.2.0",
+    "@kubernetes/client-node": "^0.11.2",
+    "@octokit/action": "^2.7.0",
+    "deepmerge": "^4.2.2",
+    "js-yaml": "^3.13.1",
+    "octokit-plugin-action-context": "^1.0.0",
+    "ws": "^7.3.0"
   },
   "devDependencies": {
     "@zeit/ncc": "^0.22.1",

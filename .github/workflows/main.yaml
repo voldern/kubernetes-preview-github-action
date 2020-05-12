@@ -1,0 +1,15 @@
+name: Check
+on: [push]
+jobs:
+    run:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@master
+            - name: Install node
+              uses: actions/setup-node@v1
+            - run: npm install
+            - name: Build
+              run: npm run build && npm run pack
+            - name: Lint
+              run: npm run format:check
