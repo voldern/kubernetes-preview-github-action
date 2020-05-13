@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as jsyaml from 'js-yaml';
+import { HttpError as KubeHttpError } from '@kubernetes/client-node';
 import merge from 'deepmerge';
 import {
   Client as KubeClient,
@@ -90,6 +91,17 @@ function getInputs(): Inputs {
   };
 }
 
+function exitWithError(error: KubeHttpError | Error) {
+  let errorMsg;
+  if (error instanceof KubeHttpError) {
+    errorMsg = (error.response as any).body.message;
+  } else {
+    errorMsg = error;
+  }
+
+  core.setFailed(`Failed with error ${errorMsg}`);
+}
+
 async function runCleanup(
   kubeClient: KubeClient,
   octokit: TOctokit,
@@ -102,9 +114,10 @@ async function runCleanup(
     core.info('Deleting deployment');
     await deleteDeployment(kubeClient, name);
 
+    core.debug('Deleting Github deployment');
     await deleteGithubDeployments(octokit);
   } catch (e) {
-    core.setFailed(`Failed with error ${e}`);
+    exitWithError(e);
   }
 }
 
@@ -120,20 +133,28 @@ async function runDeployment(
 
   let deploymentId;
   try {
+    core.debug('Checking if deployment exists');
     const exists = await deploymentExists(kubeClient, name);
     if (exists) {
       core.info('Updating existing deployment');
 
+      core.debug('Deleting existing Github deployments');
       await deleteGithubDeployments(octokit);
+
+      core.debug('Creating Github deployment');
       deploymentId = await createGithubDeployment(octokit);
 
+      core.debug('Updating K8S deployment');
       await updateDeployment(kubeClient, name, jsonManifest);
     } else {
       core.info('Creating new deployment');
 
+      core.debug('Creating Github deployment');
       deploymentId = await createGithubDeployment(octokit);
 
+      core.debug('Creating K8S deployment');
       await createDeployment(kubeClient, jsonManifest);
+      core.debug('Creating K8S service');
       await createService(kubeClient, name, 80);
     }
 
@@ -141,6 +162,7 @@ async function runDeployment(
 
     await waitForDeployment(kubeClient, name);
 
+    core.debug('Setting deployment status to success');
     await setDeploymentStatus(
       octokit,
       deploymentId,
@@ -150,10 +172,11 @@ async function runDeployment(
     );
   } catch (e) {
     if (deploymentId) {
+      core.debug('Setting deployment status to failure');
       await setDeploymentStatus(octokit, deploymentId, 'failure', 'Failed');
     }
 
-    core.setFailed(`Failed with error ${e}`);
+    exitWithError(e);
   }
 }
 
