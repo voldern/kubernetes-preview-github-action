@@ -16,9 +16,7 @@ const getRef = (): string => {
 };
 
 export function getOctokit(): TOctokit {
-  const foo = new OctokitWithContext();
-  type A = typeof foo;
-  return foo;
+  return new OctokitWithContext();
 }
 
 export async function isPullRequestClosed(octokit: TOctokit): Promise<boolean> {
