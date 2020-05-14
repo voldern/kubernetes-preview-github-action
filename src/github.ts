@@ -34,7 +34,7 @@ export async function createDeployment(octokit: TOctokit): Promise<number> {
   const newDeployment = await octokit.repos.createDeployment({
     ...octokit.context.repo,
     ref,
-    environment: 'qa',
+    environment: 'qa-${ref}',
     description: `QA of ${ref}`,
     transient_environment: true,
     required_contexts: [],
