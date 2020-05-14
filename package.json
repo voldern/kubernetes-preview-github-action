@@ -5,7 +5,7 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
-    "pack": "ncc build",
+    "pack": "ncc build lib/deploy.js -o deploy && ncc build lib/destroy.js -o destroy",
     "format": "prettier --write **/*.ts",
     "format:check": "prettier -c **/*.ts"
   },

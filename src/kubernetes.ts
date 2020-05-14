@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import * as k8s from '@kubernetes/client-node';
 
 export interface Client {
@@ -6,12 +7,15 @@ export interface Client {
   namespace: string;
 }
 
-export function getClient(
-  server: string,
-  cert: string,
-  token: string,
-  namespace: string
-): Client {
+export function getClient(namespace: string): Client {
+  core.setSecret('server');
+  core.setSecret('token');
+  core.setSecret('cert');
+
+  const server = core.getInput('server', { required: true });
+  const cert = core.getInput('cert', { required: true });
+  const token = core.getInput('token', { required: true });
+
   const config = {
     clusters: [
       {

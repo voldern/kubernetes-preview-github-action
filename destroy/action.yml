@@ -1,0 +1,24 @@
+name: kubernetes-preview-github-action
+description: Destroy deployed Kubernetes preview apps in PRs
+runs:
+  using: node12
+  main: index.js
+branding:
+  icon: aperture
+  color: white
+inputs:
+  GITHUB_TOKEN:
+    description: Github token
+    required: true
+  prefix:
+    description: Application name prefix
+    required: true
+  server:
+    description: Kubernetes server url
+    required: true
+  token:
+    description: Kubernetes user token
+    required: true
+  cert:
+    description: Kubernetes certificate
+    required: true
