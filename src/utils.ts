@@ -10,6 +10,10 @@ export function exitWithError(error: KubeHttpError | Error) {
     errorMsg = error;
   }
 
+  if (core.isDebug()) {
+    console.log('Error', error);
+  }
+
   core.setFailed(`Failed with error ${errorMsg}`);
 }
 
