@@ -89,10 +89,10 @@ async function run() {
       core.info('Updating existing deployment');
 
       core.debug('Deleting existing Github deployments');
-      await deleteGithubDeployments(octokit);
+      await deleteGithubDeployments(octokit, name);
 
       core.debug('Creating Github deployment');
-      deploymentId = await createGithubDeployment(octokit);
+      deploymentId = await createGithubDeployment(octokit, name);
 
       core.debug('Updating K8S deployment');
       await updateDeployment(kubeClient, name, jsonManifest);
@@ -100,7 +100,7 @@ async function run() {
       core.info('Creating new deployment');
 
       core.debug('Creating Github deployment');
-      deploymentId = await createGithubDeployment(octokit);
+      deploymentId = await createGithubDeployment(octokit, name);
 
       core.debug('Creating K8S deployment');
       await createDeployment(kubeClient, jsonManifest);

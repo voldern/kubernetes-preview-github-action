@@ -28,13 +28,16 @@ export async function isPullRequestClosed(octokit: TOctokit): Promise<boolean> {
   return pullRequest.state === 'closed';
 }
 
-export async function createDeployment(octokit: TOctokit): Promise<number> {
+export async function createDeployment(
+  octokit: TOctokit,
+  name: string
+): Promise<number> {
   const ref = getRef();
 
   const newDeployment = await octokit.repos.createDeployment({
     ...octokit.context.repo,
     ref,
-    environment: 'qa-${ref}',
+    environment: name,
     description: `QA of ${ref}`,
     transient_environment: true,
     required_contexts: [],
@@ -71,13 +74,13 @@ export async function setDeploymentStatus(
   });
 }
 
-export async function deleteDeployments(octokit: TOctokit) {
+export async function deleteDeployments(octokit: TOctokit, name: string) {
   const ref = getRef();
 
   const deployments = await octokit.repos.listDeployments({
     ...octokit.context.repo,
     ref,
-    environment: 'qa',
+    environment: name,
   });
 
   await Promise.all(

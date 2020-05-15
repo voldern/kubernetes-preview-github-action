@@ -25,7 +25,7 @@ async function run() {
     await deleteDeployment(kubeClient, name);
 
     core.debug('Deleting Github deployment');
-    await deleteGithubDeployments(octokit);
+    await deleteGithubDeployments(octokit, name);
   } catch (e) {
     exitWithError(e);
   }
