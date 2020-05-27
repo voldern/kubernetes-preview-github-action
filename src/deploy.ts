@@ -67,6 +67,7 @@ async function run() {
   const name = getName();
   const image = core.getInput('image', { required: true });
   const domain = core.getInput('domain', { required: true });
+  const port = core.getInput('targetPort') || '80';
 
   const kubeClient = getClient('preview');
   const octokit = getOctokit();
@@ -105,7 +106,7 @@ async function run() {
       core.debug('Creating K8S deployment');
       await createDeployment(kubeClient, jsonManifest);
       core.debug('Creating K8S service');
-      await createService(kubeClient, name, 80);
+      await createService(kubeClient, name, port);
     }
 
     core.info('Waiting for deployment to be ready');

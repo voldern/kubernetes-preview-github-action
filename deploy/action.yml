@@ -28,3 +28,7 @@ inputs:
   image:
     description: Image to deploy
     required: true
+  targetPort:
+    description: Target port in deployment
+    required: false
+    default: '80'
