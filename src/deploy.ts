@@ -67,7 +67,7 @@ async function run() {
   const name = getName();
   const image = core.getInput('image', { required: true });
   const domain = core.getInput('domain', { required: true });
-  const port = core.getInput('targetPort') || '80';
+  const port = parseInt(core.getInput('targetPort'), 10) || 80;
 
   const kubeClient = getClient('preview');
   const octokit = getOctokit();

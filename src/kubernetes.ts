@@ -107,7 +107,7 @@ export async function updateDeployment(
 export async function createService(
   client: Client,
   name: string,
-  targetPort: string
+  targetPort: number
 ): Promise<k8s.V1Service> {
   const response = await client.v1.createNamespacedService(client.namespace, {
     apiVersion: 'v1',
