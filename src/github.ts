@@ -41,6 +41,7 @@ export async function createDeployment(
     description: `QA of ${ref}`,
     transient_environment: true,
     required_contexts: [],
+    auto_merge: false,
   });
 
   const deploymentId = newDeployment.data.id;
