@@ -2,7 +2,7 @@
 
 This Github action makes it easy to create PR review applications in your Kubernetes cluster.
 
-A PR review application is a deployment that gets created with the code in the source branch of a pull request when the PR is created and that destroys it when its merged or closed.
+A PR review application is a deployment that gets created with the code in the source branch of a pull request when the PR is created and that destroys it when it's merged or closed.
 
 ## How it works
 
@@ -16,13 +16,13 @@ You need to have a wildcard domain setup that points to an ingress that runs in 
 
 You need to have a K8S cluster that is publicly available and authenticates using a certificate and a token for a service account with the right permissions.
 
-In addition you need to have an ingress that takes traffic for a wildcard domain and redirects to the correct service.
+In addition, you need to have an ingress that takes traffic for a wildcard domain and redirects to the correct service.
 
 You probably also want a controller like [certmanager](https://cert-manager.io/docs/) to generate SSL certificates.
 
 ### Examples
 
-You probably want to setup everything and run your preview applications in a dedicated namespace. Lets create one aptly named `preview`:
+You probably want to set up everything and run your preview applications in a dedicated namespace. Let's create one aptly named `preview`:
 
 ``` bash
 kubectl create ns preview
@@ -40,7 +40,7 @@ kubectl -n preview apply -f configs/auth.yaml
 
 You want a wildcard SSL certificate for the ingress.
 
-If you use GKE you can not provision wildcard certificates for your external ingress/load balancer, a simple way to provision one is using [certmanager](https://cert-manager.io/docs/). An example of a configuration can be found in [configs/cert.yaml]. Please note that the configuration need to be changed to have the right domain and to work with your cluster.
+If you use GKE you can not provision wildcard certificates for your external ingress/load balancer, a simple way to provision one is using [certmanager](https://cert-manager.io/docs/). An example of a configuration can be found in [configs/cert.yaml]. Please note that the configuration needs to be changed to have the right domain and to work with your cluster.
 
 If you're using AWS EKS [it seems like](https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/) you can use an ACM certificate directly on a service with the `LoadBalancer` `type`.
 
