@@ -1,1 +1,69 @@
-<mxfile host="app.diagrams.net" modified="2020-08-16T18:41:36.878Z" agent="5.0 (X11)" version="13.6.2" etag="2qCrHW_i3lDVZCP05-SF" type="github"><diagram id="MgOxL-Xrrcb5obOeqDXg">UzV2zq1wL0osyPDNT0nNUTV2VTV2LsrPL4GwciucU3NyVI0MMlNUjV1UjYwMgFjVyA2HrCFY1qAgsSg1rwSLBiADYTaQg2Y1AA==</diagram></mxfile>
+<mxfile host="app.diagrams.net" modified="2020-08-16T18:42:12.134Z" agent="5.0 (X11)" etag="m6Wr97XQufb2HM6Nm8Os" version="13.6.2" type="github">
+  <diagram id="MgOxL-Xrrcb5obOeqDXg" name="Page-1">
+    <mxGraphModel dx="2060" dy="1168" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.02;entryY=0.479;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="H9q4kdetEX1xCtu5DDNv-5" target="H9q4kdetEX1xCtu5DDNv-6">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="380" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="120" y="395" />
+              <mxPoint x="120" y="370" />
+              <mxPoint x="330" y="370" />
+              <mxPoint x="330" y="390" />
+              <mxPoint x="349" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-2" value="Create PR" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="H9q4kdetEX1xCtu5DDNv-1">
+          <mxGeometry x="0.1627" y="1" relative="1" as="geometry">
+            <mxPoint x="-26.240000000000002" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="H9q4kdetEX1xCtu5DDNv-5">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="350" y="394.9999999999998" as="targetPoint" />
+            <mxPoint x="120" y="400" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="120" y="400" />
+              <mxPoint x="120" y="420" />
+              <mxPoint x="330" y="420" />
+              <mxPoint x="330" y="400" />
+              <mxPoint x="350" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-4" value="Close PR" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="H9q4kdetEX1xCtu5DDNv-3">
+          <mxGeometry x="-0.1322" y="1" relative="1" as="geometry">
+            <mxPoint x="11.549999999999999" y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-5" value="Github action" style="dashed=0;outlineConnect=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.weblogos.github" vertex="1" parent="1">
+          <mxGeometry x="60" y="370" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-6" value="Kubernetes deployment" style="html=1;dashed=0;whitespace=wrap;fillColor=#2875E2;strokeColor=#ffffff;points=[[0.005,0.63,0],[0.1,0.2,0],[0.9,0.2,0],[0.5,0,0],[0.995,0.63,0],[0.72,0.99,0],[0.5,1,0],[0.28,0.99,0]];shape=mxgraph.kubernetes.icon;prIcon=deploy;spacingTop=70;" vertex="1" parent="1">
+          <mxGeometry x="350" y="372" width="50" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="H9q4kdetEX1xCtu5DDNv-8" target="H9q4kdetEX1xCtu5DDNv-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-8" value="&lt;p style=&quot;line-height: 150%&quot;&gt;Ingress&lt;/p&gt;" style="html=1;dashed=0;whitespace=wrap;fillColor=#2875E2;strokeColor=#ffffff;points=[[0.005,0.63,0],[0.1,0.2,0],[0.9,0.2,0],[0.5,0,0],[0.995,0.63,0],[0.72,0.99,0],[0.5,1,0],[0.28,0.99,0]];shape=mxgraph.kubernetes.icon;prIcon=ep;spacingTop=72;" vertex="1" parent="1">
+          <mxGeometry x="350" y="250" width="50" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.005;entryY=0.63;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="H9q4kdetEX1xCtu5DDNv-10" target="H9q4kdetEX1xCtu5DDNv-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-10" value="&lt;div&gt;External load balancer&lt;/div&gt;" style="points=[[0.015,0.015,0],[0.985,0.015,0],[0.985,0.985,0],[0.015,0.985,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];verticalLabelPosition=bottom;html=1;verticalAlign=top;aspect=fixed;align=center;pointerEvents=1;shape=mxgraph.cisco19.rect;prIcon=load_balancer;fillColor=#FAFAFA;strokeColor=#005073;" vertex="1" parent="1">
+          <mxGeometry x="200" y="255" width="64" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="H9q4kdetEX1xCtu5DDNv-12" target="H9q4kdetEX1xCtu5DDNv-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="H9q4kdetEX1xCtu5DDNv-12" value="" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="45" y="247" width="80" height="66" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
