@@ -1,0 +1,22 @@
+server {
+       listen 80 default_server;
+       server_name _;
+       return 200;
+}
+
+server {
+       listen 80;
+
+       server_name ~^(?<target>[^.]+)\.${DOMAIN}$;
+       resolver kube-dns.kube-system.svc.cluster.local;
+
+       location /health {
+                return 200 "healthy\n";
+       }
+
+       location / {
+              proxy_pass http://$target.${NAMESPACE}.svc.cluster.local:80;
+              proxy_redirect off;
+              proxy_set_header Host $host;
+       }
+}
