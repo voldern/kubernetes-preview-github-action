@@ -97,6 +97,9 @@ jobs:
               targetPort: 8080
 ```
 
+The workflow looks for a file called `manifest.yaml` in the root of your repository. It should contain the configuration for the application `Deployment`.
+It will replace references to `__IMAGE__` in the file with the one passed to the action.
+
 You also want to delete the applications once the PR is merge or closed. You can do that in a separate workflow, for example in `.github/workflows/cleanup.yaml`:
 
 ``` yaml
