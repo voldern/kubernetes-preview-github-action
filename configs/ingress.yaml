@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
       - name: preview
-        image: voldern/kubernetes-preview-ingress:1.0.0
+        image: voldern/kubernetes-preview-ingress:0.0.1
         resources:
           requests:
             cpu: 50m

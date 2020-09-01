@@ -46,7 +46,7 @@ If you're using AWS EKS [it seems like](https://aws.amazon.com/premiumsupport/kn
 
 #### Ingress
 
-An example of a simple ingress based on nginx can be found in [ingress/](ingress/) and is published as a Docker image at [url](url).
+An example of a simple ingress based on nginx can be found in [ingress/](ingress/) and is published as a Docker image at [Dockerhub](https://hub.docker.com/r/voldern/kubernetes-preview-ingress).
 
 To see an example of how to run the ingress on GKE with an external load balancer (ingress) look at [configs/ingress.yaml](configs/ingress.yaml).
 
