@@ -40,7 +40,7 @@ kubectl -n preview apply -f configs/auth.yaml
 
 You want a wildcard SSL certificate for the ingress.
 
-If you use GKE you can not provision wildcard certificates for your external ingress/load balancer, a simple way to provision one is using [certmanager](https://cert-manager.io/docs/). An example of a configuration can be found in [configs/cert.yaml]. Please note that the configuration needs to be changed to have the right domain and to work with your cluster.
+If you use GKE you can not provision wildcard certificates for your external ingress/load balancer, a simple way to provision one is using [certmanager](https://cert-manager.io/docs/). An example of a configuration can be found in [configs/cert.yaml](configs/cert.yaml). Please note that the configuration needs to be changed to have the right domain and to work with your cluster.
 
 If you're using AWS EKS [it seems like](https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/) you can use an ACM certificate directly on a service with the `LoadBalancer` `type`.
 
