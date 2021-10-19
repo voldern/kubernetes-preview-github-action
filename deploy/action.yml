@@ -13,9 +13,6 @@ inputs:
   domain:
     description: Base domain
     required: true
-  prefix:
-    description: Application name prefix
-    required: true
   server:
     description: Kubernetes server url
     required: true
@@ -25,10 +22,6 @@ inputs:
   cert:
     description: Kubernetes certificate
     required: true
-  image:
-    description: Image to deploy
+  specsPath:
+    description: Path to Kubernetes specs to apply
     required: true
-  targetPort:
-    description: Target port in deployment
-    required: false
-    default: '80'

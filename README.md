@@ -2,11 +2,11 @@
 
 This Github action makes it easy to create PR review applications in your Kubernetes cluster.
 
-A PR review application is a deployment that gets created with the code in the source branch of a pull request when the PR is created and that destroys it when it's merged or closed.
+A PR review application is a deployment that gets created with the code in the source branch of a pull request when the PR is created and destroys it when it's merged or closed.
 
 ## How it works
 
-The action talks to the Kubernetes API using credentials and certificates that you supply to create a deployment based on a template you supply in the repository that uses this action. The action also creates a Github deployment that tracks the Kubernetes deployment.
+The action talks to the Kubernetes API using credentials and certificates that you supply to create a deployment and other resources based on specs you supply in the repository that uses this action. The action also creates a Github deployment that tracks the Kubernetes deployment.
 
 You need to have a wildcard domain setup that points to an ingress that runs in your cluster and that forwards traffic to the right service.
 
@@ -14,11 +14,11 @@ You need to have a wildcard domain setup that points to an ingress that runs in 
 
 ## Infrastructure setup
 
-You need to have a K8S cluster that is publicly available and authenticates using a certificate and a token for a service account with the right permissions.
+You need to have a K8S cluster that is publicly available and authenticates using a certificate and a token for a service account with the right permissions. See [ServiceAccount](#serviceaccount) for more details.
 
-In addition, you need to have an ingress that takes traffic for a wildcard domain and redirects to the correct service.
+In addition, you need to have an ingress that takes traffic for a wildcard domain and forwards it to the correct service.
 
-You probably also want a controller like [certmanager](https://cert-manager.io/docs/) to generate SSL certificates.
+For AWS you would attach an ACM wildcard certificate to the LoadBalancer that sits in front of the ingress. For other setups, you could a controller like [certmanager](https://cert-manager.io/docs/) to generate SSL certificates.
 
 ### Examples
 
@@ -40,21 +40,45 @@ kubectl -n preview apply -f configs/auth.yaml
 
 You want a wildcard SSL certificate for the ingress.
 
-If you use GKE you can not provision wildcard certificates for your external ingress/load balancer, a simple way to provision one is using [certmanager](https://cert-manager.io/docs/). An example of a configuration can be found in [configs/cert.yaml](configs/cert.yaml). Please note that the configuration needs to be changed to have the right domain and to work with your cluster.
+For AWS you can use an ACM wildcard certificate directly on a `LoadBalancer` if you're running the [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.3/) as described [here](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.3/guide/ingress/annotations/#ssl).
 
-If you're using AWS EKS [it seems like](https://aws.amazon.com/premiumsupport/knowledge-center/terminate-https-traffic-eks-acm/) you can use an ACM certificate directly on a service with the `LoadBalancer` `type`.
+If you use GKE you can not provision wildcard certificates for your external ingress/load balancer, a simple way to provision one is using [certmanager](https://cert-manager.io/docs/). An example of a configuration can be found in [configs/gke/cert.yaml](configs/gke/cert.yaml). Please note that the configuration needs to be changed to have the right domain and to work with your cluster.
 
 #### Ingress
 
 An example of a simple ingress based on nginx can be found in [ingress/](ingress/) and is published as a Docker image at [Dockerhub](https://hub.docker.com/r/voldern/kubernetes-preview-ingress).
 
-To see an example of how to run the ingress on GKE with an external load balancer (ingress) look at [configs/ingress.yaml](configs/ingress.yaml).
+To see an example of how to run the ingress on AWS with a `LoadBalancer` with an attached ACM certificate look at [configs/aws/ingress.yaml](configs/aws/ingress.yaml).
 
-For AWS EKS you would use the `LoadBalancer` as described above instead of the `Ingress`.
+To see an example of how to run the ingress on GKE with an external load balancer (ingress) look at [configs/gke/ingress.yaml](configs/gke/ingress.yaml).
 
 ## Usage
 
 Create a workflow in the repository of your application. For example `.github/workflows/review-app.yaml`.
+
+### Inputs
+
+To get the token and certificate for the service account find the name of the secret holding the credentials:
+
+```bash
+kubectl -n preview get secret
+```
+
+Then get the data stored in the secret:
+
+``` bash
+kubectl -n preview get secrets/preview-ci-token-XXX -o yaml
+```
+
+The `ca.crt` should be provided in its base64 encoded form while the `token` should be provided decoded from its base64 value.
+
+### Specs
+
+You probably want to generate your Kubernetes specs somehow. [kustomize](https://kustomize.io/) is one way of doing it.
+
+It's important that all specs in each PR have a different name and a unique set of labels.
+
+### Example
 
 An example of the workflow:
 
@@ -69,6 +93,8 @@ on:
 jobs:
     run:
         runs-on: ubuntu-latest
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         steps:
           - name: Checkout code
             uses: actions/checkout@master
@@ -85,20 +111,24 @@ jobs:
             run: docker build . -t ${{ steps.vars.outputs.image }}
           - name: Push docker image
             run: docker push ${{ steps.vars.outputs.image }}
+          - name: Setup kustomize
+            uses: imranismail/setup-kustomize@v1
+          - name: Edit k8s specs
+            run: |
+              cd kustomize/
+              kustomize edit set nameprefix pr-${{ env.PR_NUMBER }}-
+              kustomize edit set label pr:${{ env.PR_NUMBER }}
+          - name: Build k8s config
+            run: kustomize build kustomize > specs.yml
           - uses: voldern/kubernetes-preview-github-action/deploy@v0.2.1
             with:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               domain: my.domain.tld
-              prefix: name-of-application
               server: ${{ secrets.K8S_SERVER }}
               token: ${{ secrets.K8S_TOKEN }}
               cert: ${{ secrets.K8S_CERT }}
-              image: ${{ steps.vars.outputs.image }}
-              targetPort: 8080
+              specsPath: 'specs.yml'
 ```
-
-The workflow looks for a file called `manifest.yaml` in the root of your repository. It should contain the configuration for the application `Deployment`.
-It will replace references to `__IMAGE__` in the file with the one passed to the action.
 
 You also want to delete the applications once the PR is merge or closed. You can do that in a separate workflow, for example in `.github/workflows/cleanup.yaml`:
 
@@ -114,12 +144,21 @@ jobs:
         steps:
           - name: Checkout code
             uses: actions/checkout@master
+          - name: Setup kustomize
+            uses: imranismail/setup-kustomize@v1
+          - name: Edit k8s specs
+            run: |
+              cd kustomize/
+              kustomize edit set nameprefix pr-${{ env.PR_NUMBER }}-
+              kustomize edit set label pr:${{ env.PR_NUMBER }}
+          - name: Build k8s config
+            run: kustomize build kustomize > specs.yml
           - uses: voldern/kubernetes-preview-github-action/destroy@v0.2.1
             with:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              prefix: name-of-application
               server: ${{ secrets.K8S_SERVER }}
               token: ${{ secrets.K8S_TOKEN }}
               cert: ${{ secrets.K8S_CERT }}
+              specsPath: 'specs.yml'
 ```
 

@@ -1,33 +1,28 @@
 import * as core from '@actions/core';
 import {
-  Client as KubeClient,
-  getClient,
-  deleteService,
-  deleteDeployment,
-} from './kubernetes';
-import {
-  TOctokit,
-  getOctokit,
   deleteDeployments as deleteGithubDeployments,
+  getOctokit,
 } from './github';
-import { exitWithError, getName } from './utils';
+import { deleteSpecs, getClient } from './kubernetes';
+import { exitWithError, getDeploymentName, loadSpecs } from './utils';
 
 async function run() {
-  const name = getName();
+  const specsPath = core.getInput('specsPath', { required: true });
+  const specs = loadSpecs(specsPath);
+
   const kubeClient = getClient('preview');
   const octokit = getOctokit();
 
   try {
-    core.info('Deleting service');
-    await deleteService(kubeClient, name);
+    const deploymentName = getDeploymentName(specs);
 
-    core.info('Deleting deployment');
-    await deleteDeployment(kubeClient, name);
+    core.info('Deleting Kubernetes objects');
+    await deleteSpecs(kubeClient, specs);
 
-    core.debug('Deleting Github deployment');
-    await deleteGithubDeployments(octokit, name);
+    core.info('Deleting Github deployment');
+    await deleteGithubDeployments(octokit, deploymentName);
   } catch (e) {
-    exitWithError(e);
+    exitWithError(e as any);
   }
 }
 

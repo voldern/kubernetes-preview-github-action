@@ -4,6 +4,7 @@ import * as k8s from '@kubernetes/client-node';
 export interface Client {
   v1: k8s.CoreV1Api;
   appsV1: k8s.AppsV1Api;
+  objectApi: k8s.KubernetesObjectApi;
   namespace: string;
 }
 
@@ -46,6 +47,7 @@ export function getClient(namespace: string): Client {
   return {
     v1: kc.makeApiClient(k8s.CoreV1Api),
     appsV1: kc.makeApiClient(k8s.AppsV1Api),
+    objectApi: kc.makeApiClient(k8s.KubernetesObjectApi),
     namespace,
   };
 }
@@ -67,9 +69,10 @@ export async function deploymentExists(
   try {
     await client.appsV1.readNamespacedDeployment(name, client.namespace);
 
-    // If no exception is thrown the namespace exists
+    // If no exception is thrown some deployment exists
     return true;
   } catch (e) {
+    console.log('Fail', e);
     if (e.response.body.code === 404) {
       return false;
     }
@@ -78,70 +81,47 @@ export async function deploymentExists(
   }
 }
 
-export async function createDeployment(
+export async function applySpecs(
   client: Client,
-  body: k8s.V1Deployment
-): Promise<k8s.V1Deployment> {
-  const response = await client.appsV1.createNamespacedDeployment(
-    client.namespace,
-    body
-  );
+  specs: k8s.KubernetesObject[]
+) {
+  const validSpecs = specs.filter((s) => s && s.kind && s.metadata);
 
-  return response.body;
+  for (const spec of validSpecs) {
+    // this is to convince the old version of TypeScript that metadata exists even though we already filtered specs
+    // without metadata out
+    spec.metadata = spec.metadata || {};
+    spec.metadata.annotations = spec.metadata.annotations || {};
+
+    delete spec.metadata.annotations[
+      'kubectl.kubernetes.io/last-applied-configuration'
+    ];
+    spec.metadata.annotations[
+      'kubectl.kubernetes.io/last-applied-configuration'
+    ] = JSON.stringify(spec);
+
+    try {
+      // try to get the resource, if it does not exist an error will be thrown and we will end up in the catch
+      // block.
+      await client.objectApi.read(spec);
+      // we got the resource, so it exists, so patch it
+      await client.objectApi.patch(spec);
+    } catch (e) {
+      // we did not get the resource, so it does not exist, so create it
+      await client.objectApi.create(spec);
+    }
+  }
 }
 
-export async function updateDeployment(
+export async function deleteSpecs(
   client: Client,
-  name: string,
-  body: k8s.V1Deployment
-): Promise<k8s.V1Deployment> {
-  const response = await client.appsV1.replaceNamespacedDeployment(
-    name,
-    client.namespace,
-    body
-  );
+  specs: k8s.KubernetesObject[]
+) {
+  const validSpecs = specs.filter((s) => s && s.kind && s.metadata);
 
-  return response.body;
-}
-
-export async function createService(
-  client: Client,
-  name: string,
-  targetPort: number
-): Promise<k8s.V1Service> {
-  const response = await client.v1.createNamespacedService(client.namespace, {
-    apiVersion: 'v1',
-    kind: 'Service',
-    metadata: {
-      name,
-      labels: {
-        app: name,
-      },
-    },
-    spec: {
-      type: 'NodePort',
-      selector: {
-        app: name,
-      },
-      ports: [
-        {
-          port: 80,
-          protocol: 'TCP',
-          targetPort: targetPort as Object,
-        },
-      ],
-    },
-  });
-
-  return response.body;
-}
-
-export async function deleteDeployment(client: Client, name: string) {
-  await client.appsV1.deleteNamespacedDeployment(name, client.namespace);
-}
-
-export async function deleteService(client: Client, name: string) {
-  await client.v1.deleteNamespacedService(name, client.namespace);
+  for (const spec of validSpecs) {
+    await client.objectApi.delete(spec);
+  }
 }
 
 export async function waitForDeployment(client: Client, name: string) {
