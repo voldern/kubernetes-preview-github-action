@@ -14,10 +14,9 @@
   "dependencies": {
     "@actions/core": "^1.2.4",
     "@actions/github": "^2.2.0",
-    "@kubernetes/client-node": "^0.11.2",
+    "@kubernetes/client-node": "^0.15.1",
     "@octokit/action": "^2.7.0",
     "deepmerge": "^4.2.2",
-    "js-yaml": "^3.13.1",
     "octokit-plugin-action-context": "^1.0.0",
     "ws": "^7.3.0"
   },

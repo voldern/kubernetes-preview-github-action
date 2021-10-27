@@ -22,3 +22,6 @@ inputs:
   cert:
     description: Kubernetes certificate
     required: true
+  specsPath:
+    description: Path to Kubernetes specs to destroy
+    required: true

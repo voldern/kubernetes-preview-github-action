@@ -1,0 +1,94 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: preview
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-1:015495336942:certificate/f242602e-2e41-4eba-a4d7-36b37a40cc6f
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: preview
+            port:
+              number: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: preview-ingress
+  labels:
+    app: preview-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: preview-ingress
+  template:
+    metadata:
+      labels:
+        app: preview-ingress
+    spec:
+      containers:
+      - name: preview-ingress
+        image: voldern/kubernetes-preview-ingress:0.0.3
+        env:
+          - name: DOMAIN
+            value: some.domain.tld
+          - name: NAMESPACE
+            value: preview
+        resources:
+          requests:
+            cpu: 50m
+          limits:
+            cpu: 50m
+        readinessProbe:
+          initialDelaySeconds: 30
+          httpGet:
+            path: /health
+            port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: preview-ingress
+  labels:
+    app: preview-ingress
+spec:
+  type: NodePort
+  selector:
+    app: preview-ingress
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:XXX
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    kubernetes.io/ingress.class: alb
+  name: preview
+  namespace: preview
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: preview
+            port:
+              number: 80
+        path: /*
+        pathType: ImplementationSpecific

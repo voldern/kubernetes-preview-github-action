@@ -1,82 +1,32 @@
-import * as path from 'path';
-import * as fs from 'fs';
 import * as core from '@actions/core';
-import * as jsyaml from 'js-yaml';
-import merge from 'deepmerge';
 import {
-  Client as KubeClient,
-  getClient,
-  createDeployment,
-  updateDeployment,
-  getDeployments,
-  createService,
-  deploymentExists,
-  waitForDeployment,
-} from './kubernetes';
-import {
-  TOctokit,
-  getOctokit,
   createDeployment as createGithubDeployment,
   deleteDeployments as deleteGithubDeployments,
-  setDeploymentStatus,
+  getOctokit,
   isPullRequestClosed,
+  setDeploymentStatus,
 } from './github';
-import { exitWithError, getName } from './utils';
-
-function loadManifest(manifestPath: string): string {
-  const file = fs.readFileSync(path.join(process.cwd(), manifestPath));
-  return file.toString();
-}
-
-function buildDeploymentManifest(
-  manifest: string,
-  name: string,
-  image: string
-): Object {
-  if (!manifest.includes('__IMAGE__')) {
-    throw new Error('Manifest does not include __IMAGE__ placeholder');
-  }
-
-  const jsonManifest = jsyaml.safeLoad(manifest.replace('__IMAGE__', image));
-
-  return merge(jsonManifest, {
-    metadata: {
-      name,
-      labels: {
-        app: name,
-      },
-    },
-    spec: {
-      selector: {
-        matchLabels: {
-          app: name,
-        },
-      },
-      template: {
-        metadata: {
-          labels: {
-            app: name,
-          },
-        },
-      },
-    },
-  });
-}
+import {
+  applySpecs,
+  deploymentExists,
+  getClient,
+  waitForDeployment,
+} from './kubernetes';
+import { exitWithError, getDeploymentName, loadSpecs } from './utils';
 
 async function run() {
-  const name = getName();
-  const image = core.getInput('image', { required: true });
   const domain = core.getInput('domain', { required: true });
-  const port = parseInt(core.getInput('targetPort'), 10) || 80;
+  const specsPath = core.getInput('specsPath', { required: true });
 
   const kubeClient = getClient('preview');
   const octokit = getOctokit();
 
-  const manifest = loadManifest('manifest.yaml');
-  const jsonManifest = buildDeploymentManifest(manifest, name, image);
+  const specs = loadSpecs(specsPath);
 
   let deploymentId;
   try {
+    const deploymentName = getDeploymentName(specs);
+
     core.debug('Checking if PR is closed');
     const isPrClosed = await isPullRequestClosed(octokit);
     if (isPrClosed) {
@@ -84,34 +34,32 @@ async function run() {
       return;
     }
 
-    core.debug('Checking if deployment exists');
-    const exists = await deploymentExists(kubeClient, name);
+    core.debug('Checking if deployments exists');
+    const exists = await deploymentExists(kubeClient, deploymentName);
     if (exists) {
       core.info('Updating existing deployment');
 
       core.debug('Deleting existing Github deployments');
-      await deleteGithubDeployments(octokit, name);
+      await deleteGithubDeployments(octokit, deploymentName);
 
       core.debug('Creating Github deployment');
-      deploymentId = await createGithubDeployment(octokit, name);
+      deploymentId = await createGithubDeployment(octokit, deploymentName);
 
       core.debug('Updating K8S deployment');
-      await updateDeployment(kubeClient, name, jsonManifest);
+      await applySpecs(kubeClient, specs);
     } else {
       core.info('Creating new deployment');
 
       core.debug('Creating Github deployment');
-      deploymentId = await createGithubDeployment(octokit, name);
+      deploymentId = await createGithubDeployment(octokit, deploymentName);
 
       core.debug('Creating K8S deployment');
-      await createDeployment(kubeClient, jsonManifest);
-      core.debug('Creating K8S service');
-      await createService(kubeClient, name, port);
+      await applySpecs(kubeClient, specs);
     }
 
     core.info('Waiting for deployment to be ready');
 
-    await waitForDeployment(kubeClient, name);
+    await waitForDeployment(kubeClient, deploymentName);
 
     core.debug('Setting deployment status to success');
     await setDeploymentStatus(
@@ -119,7 +67,7 @@ async function run() {
       deploymentId,
       'success',
       'Success',
-      `https://${name}.${domain}`
+      `https://${deploymentName}.${domain}`
     );
   } catch (e) {
     if (deploymentId) {
@@ -127,7 +75,7 @@ async function run() {
       await setDeploymentStatus(octokit, deploymentId, 'failure', 'Failed');
     }
 
-    exitWithError(e);
+    exitWithError(e as any);
   }
 }
 
