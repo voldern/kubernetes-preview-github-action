@@ -52,6 +52,23 @@ To see an example of how to run the ingress on AWS with a `LoadBalancer` with an
 
 To see an example of how to run the ingress on GKE with an external load balancer (ingress) look at [configs/gke/ingress.yaml](configs/gke/ingress.yaml).
 
+### Helm chart
+
+We have a Helm chart to setup the infrastructure on AWS.
+
+You need to add this repository to your helm repositories:
+
+``` bash
+helm repo add preview https://voldern.github.io/kubernetes-preview-github-action
+helm repo update
+```
+
+Install:
+
+``` bash
+helm install <RELEASE_NAME> -n preview --set ingress.certificateArn=arn:XXX --set ingress.domain=foo.bar.baz preview/preview
+```
+
 ## Usage
 
 Create a workflow in the repository of your application. For example `.github/workflows/review-app.yaml`.
