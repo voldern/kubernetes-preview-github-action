@@ -3,6 +3,16 @@ entries:
   preview:
   - apiVersion: v2
     appVersion: 0.3.0
+    created: "2021-11-09T10:14:25.884136998Z"
+    description: A Helm chart for kubernetes-preview-action
+    digest: d389d6a5baba802c292a65f401203f67bcc7c9a5cbb80abaf7a4c1471310974c
+    name: preview
+    type: application
+    urls:
+    - https://github.com/voldern/kubernetes-preview-github-action/releases/download/preview-0.0.2/preview-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
+    appVersion: 0.3.0
     created: "2021-11-09T09:56:20.461981273Z"
     description: A Helm chart for kubernetes-preview-action
     digest: b7128e562d266adff6fb57ab73ee89b50dae89647c1468ee40a4a01113c2116b
@@ -11,4 +21,4 @@ entries:
     urls:
     - https://github.com/voldern/kubernetes-preview-github-action/releases/download/preview-0.0.1/preview-0.0.1.tgz
     version: 0.0.1
-generated: "2021-11-09T09:56:20.461986773Z"
+generated: "2021-11-09T10:14:25.884158498Z"
