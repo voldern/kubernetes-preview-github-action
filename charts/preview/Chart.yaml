@@ -4,5 +4,5 @@ description: A Helm chart for kubernetes-preview-action
 
 type: application
 
-version: 0.0.1
+version: 0.0.2
 appVersion: "0.3.0"
