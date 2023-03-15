@@ -13,14 +13,11 @@ inputs:
   domain:
     description: Base domain
     required: true
-  server:
-    description: Kubernetes server url
+  namespace:
+    description: Namespace to deploy into
     required: true
-  token:
-    description: Kubernetes user token
-    required: true
-  cert:
-    description: Kubernetes certificate
+  kubeconfig:
+    description: Path to kubeconfig
     required: true
   specsPath:
     description: Path to Kubernetes specs to apply

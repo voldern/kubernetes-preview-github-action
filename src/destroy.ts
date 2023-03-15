@@ -10,7 +10,7 @@ async function run() {
   const specsPath = core.getInput('specsPath', { required: true });
   const specs = loadSpecs(specsPath);
 
-  const kubeClient = getClient('preview');
+  const kubeClient = getClient();
   const octokit = getOctokit();
 
   try {
