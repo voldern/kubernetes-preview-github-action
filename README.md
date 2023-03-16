@@ -14,11 +14,11 @@ You need to have a wildcard domain setup that points to an ingress that runs in 
 
 ## Infrastructure setup
 
-You need to have a K8S cluster that is publicly available and authenticates using a certificate and a token for a service account with the right permissions. See [ServiceAccount](#serviceaccount) for more details.
+You need to have a K8S cluster that is available from a Github action with a kubeconfig. See [ServiceAccount](#serviceaccount) for additional details.
 
 In addition, you need to have an ingress that takes traffic for a wildcard domain and forwards it to the correct service.
 
-For AWS you would attach an ACM wildcard certificate to the LoadBalancer that sits in front of the ingress. For other setups, you could a controller like [certmanager](https://cert-manager.io/docs/) to generate SSL certificates.
+For AWS you would attach an ACM wildcard certificate to the LoadBalancer that sits in front of the ingress. For other GKE and other setups, you could use a controller like [certmanager](https://cert-manager.io/docs/) to provision a wildcard SSL certificate.
 
 ### Examples
 
@@ -30,11 +30,13 @@ kubectl create ns preview
 
 #### ServiceAccount
 
-Then create a service account with permission to get, create, update and delete `services` and `deployments`. An example of this can be found in [configs/auth.yaml](configs/auth.yaml).
+Then you could create a service account with permission to get, create, update and delete `services` and `deployments`. An example of this can be found in [configs/auth.yaml](configs/auth.yaml).
 
 ``` bash
 kubectl -n preview apply -f configs/auth.yaml
 ```
+
+If you're using GKE see [Authenticating to the Kubernetes API server](https://cloud.google.com/kubernetes-engine/docs/how-to/api-server-authentication#applications_in_other_environments) and [google-github-actions/get-gke-credentials](https://github.com/google-github-actions/get-gke-credentials).
 
 #### SSL cert
 
@@ -42,7 +44,7 @@ You want a wildcard SSL certificate for the ingress.
 
 For AWS you can use an ACM wildcard certificate directly on a `LoadBalancer` if you're running the [AWS Load Balancer Controller](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.3/) as described [here](https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.3/guide/ingress/annotations/#ssl).
 
-If you use GKE you can not provision wildcard certificates for your external ingress/load balancer, a simple way to provision one is using [certmanager](https://cert-manager.io/docs/). An example of a configuration can be found in [configs/gke/cert.yaml](configs/gke/cert.yaml). Please note that the configuration needs to be changed to have the right domain and to work with your cluster.
+If you use GKE its not possible to provision wildcard certificates for your external ingress/load balancer. One simple way to provision one is using [certmanager](https://cert-manager.io/docs/). An **outdated** example of a configuration can be found in [configs/gke/cert.yaml](configs/gke/cert.yaml). Please note that the configuration needs to be changed to have the right domain and to work with your cluster.
 
 #### Ingress
 
@@ -50,11 +52,11 @@ An example of a simple ingress based on nginx can be found in [ingress/](ingress
 
 To see an example of how to run the ingress on AWS with a `LoadBalancer` with an attached ACM certificate look at [configs/aws/ingress.yaml](configs/aws/ingress.yaml).
 
-To see an example of how to run the ingress on GKE with an external load balancer (ingress) look at [configs/gke/ingress.yaml](configs/gke/ingress.yaml).
+To see an **outdated** example of how to run the ingress on GKE with an external load balancer (ingress) look at [configs/gke/ingress.yaml](configs/gke/ingress.yaml).
 
 ### Helm chart
 
-We have a Helm chart to setup the infrastructure on AWS.
+There is a Helm chart to setup the infrastructure on AWS.
 
 You need to add this repository to your helm repositories:
 
@@ -75,7 +77,9 @@ Create a workflow in the repository of your application. For example `.github/wo
 
 ### Inputs
 
-To get the token and certificate for the service account find the name of the secret holding the credentials:
+You need a kubeconfig to be able to run the action. If you are using GKE you can get one by following the documentation at [google-github-actions/get-gke-credentials](https://github.com/google-github-actions/get-gke-credentials).
+
+For AWS and other setups you can get the token and certificate for the service account by finding the name of the secret holding the credentials:
 
 ```bash
 kubectl -n preview get secret
@@ -88,6 +92,8 @@ kubectl -n preview get secrets/preview-ci-token-XXX -o yaml
 ```
 
 The `ca.crt` should be provided in its base64 encoded form while the `token` should be provided decoded from its base64 value.
+
+Use that to generate a kubeconfig.
 
 ### Specs
 
@@ -141,9 +147,8 @@ jobs:
             with:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               domain: my.domain.tld
-              server: ${{ secrets.K8S_SERVER }}
-              token: ${{ secrets.K8S_TOKEN }}
-              cert: ${{ secrets.K8S_CERT }}
+              namespace: preview
+              kubeconfig: path/to/kubeconfig
               specsPath: 'specs.yml'
 ```
 
@@ -173,9 +178,8 @@ jobs:
           - uses: voldern/kubernetes-preview-github-action/destroy@v0.3.0
             with:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              server: ${{ secrets.K8S_SERVER }}
-              token: ${{ secrets.K8S_TOKEN }}
-              cert: ${{ secrets.K8S_CERT }}
+              namespace: preview
+              kubeconfig: path/to/kubeconfig
               specsPath: 'specs.yml'
 ```
 

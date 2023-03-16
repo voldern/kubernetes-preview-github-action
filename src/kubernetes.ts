@@ -8,41 +8,14 @@ export interface Client {
   namespace: string;
 }
 
-export function getClient(namespace: string): Client {
-  core.setSecret('server');
-  core.setSecret('token');
-  core.setSecret('cert');
+export function getClient(): Client {
+  core.setSecret('kubeconfig');
 
-  const server = core.getInput('server', { required: true });
-  const cert = core.getInput('cert', { required: true });
-  const token = core.getInput('token', { required: true });
-
-  const config = {
-    clusters: [
-      {
-        name: 'cluster',
-        server,
-        caData: cert,
-      },
-    ],
-    contexts: [
-      {
-        name: 'context',
-        cluster: 'cluster',
-        user: 'preview-ci',
-      },
-    ],
-    currentContext: 'context',
-    users: [
-      {
-        name: 'preview-ci',
-        token,
-      },
-    ],
-  };
+  const namespace = core.getInput('namespace', { required: true });
+  const kubeconfig = core.getInput('kubeconfig', { required: true });
 
   const kc = new k8s.KubeConfig();
-  kc.loadFromOptions(config);
+  kc.loadFromFile(kubeconfig);
 
   return {
     v1: kc.makeApiClient(k8s.CoreV1Api),

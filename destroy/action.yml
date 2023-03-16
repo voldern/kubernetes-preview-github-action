@@ -10,17 +10,11 @@ inputs:
   GITHUB_TOKEN:
     description: Github token
     required: true
-  prefix:
-    description: Application name prefix
+  namespace:
+    description: Namespace to deploy into
     required: true
-  server:
-    description: Kubernetes server url
-    required: true
-  token:
-    description: Kubernetes user token
-    required: true
-  cert:
-    description: Kubernetes certificate
+  kubeconfig:
+    description: Path to kubeconfig
     required: true
   specsPath:
     description: Path to Kubernetes specs to destroy
