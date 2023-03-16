@@ -143,7 +143,7 @@ jobs:
               kustomize edit set label pr:${{ env.PR_NUMBER }}
           - name: Build k8s config
             run: kustomize build kustomize > specs.yml
-          - uses: voldern/kubernetes-preview-github-action/deploy@v0.3.0
+          - uses: voldern/kubernetes-preview-github-action/deploy@vX.X.X
             with:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               domain: my.domain.tld
@@ -175,7 +175,7 @@ jobs:
               kustomize edit set label pr:${{ env.PR_NUMBER }}
           - name: Build k8s config
             run: kustomize build kustomize > specs.yml
-          - uses: voldern/kubernetes-preview-github-action/destroy@v0.3.0
+          - uses: voldern/kubernetes-preview-github-action/destroy@vX.X.X
             with:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               namespace: preview
